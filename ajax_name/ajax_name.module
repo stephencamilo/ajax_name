@@ -31,7 +31,6 @@ function ajax_name_init() {
 
 function ajax_name_results() {
      
-  drupal_set_message(t('Os seus dados foram enviados com sucesso!'));
   $output = ajax_name_submissions();
 
   $commands = array();
