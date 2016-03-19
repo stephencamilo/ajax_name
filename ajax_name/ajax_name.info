@@ -1,0 +1,6 @@
+name = Ajax Name
+description = A module with some basic operation using ajax
+core = 7.x
+
+dependencies[] = ctools
+dependencies[] = modal_forms

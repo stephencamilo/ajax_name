@@ -1,0 +1,39 @@
+<?php
+
+/**
+*	Implements hook_schema();
+*/
+
+function ajax_name_schema() {
+  $schema['ajax_name'] = array(
+  'description' => 'Ajax name custom database',
+  'fields' => array(
+    'ajax_name_id' => array(
+      'description' => 'The primary identifier for the table.',
+      'type' => 'serial',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      ),
+    'nome' => array(
+      'description' => 'Nome',
+      'type' => 'varchar',
+      'length' => 144,
+      'not null' => TRUE,
+      'default' => '',
+      ),
+    'sobrenome' => array(
+      'description' => 'Sobrenome',
+      'type' => 'varchar',
+      'length' => 144,
+      'not null' => TRUE,
+      'default' => '',
+      ),
+    ),
+  'indexes' => array(
+    'ajax_name_nome' => array('nome'),
+    ),
+  'primary key' => array('ajax_name_id'),   
+  );
+  
+  return $schema;
+}

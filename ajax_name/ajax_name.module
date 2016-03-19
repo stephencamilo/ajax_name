@@ -1,0 +1,130 @@
+<?php
+
+function ajax_name_response($type = 'ajax') {
+
+  if ($type == 'ajax') {
+    $form = drupal_get_form('ajax_name_form','ajax_name');
+    $output = drupal_render($form);
+    $commands = array();
+    $commands[] = ajax_command_replace('#myDiv', $output);
+    $commands[] = ajax_command_invoke('#ajax-name-form', 'replaceAll', array('#modal-throbber'));
+    $commands[] = ajax_command_invoke('a.close', 'hide');
+    $commands[] = ajax_command_invoke('#modal-title', 'hide');
+    $page = array('#type' => 'ajax', '#commands' => $commands);
+    ajax_deliver($page);
+  }
+
+  else {
+    $output = t("This is some content delivered via a page load.");
+    return $output;
+  }
+
+}
+
+function ajax_name_init() {
+ 
+  ctools_include('ajax');
+  ctools_include('modal');
+
+}
+
+function ajax_name_results() {
+ 
+  $output = ajax_name_submissions();
+
+  $commands = array();
+  $commands[] = ajax_command_after('h1.with-tabs', $output);
+  $commands[] = ajax_command_invoke('.close', 'click');
+  $page = array('#type' => 'ajax','#commands' => $commands);
+  return $page;
+
+}
+
+function ajax_name_render_link() {
+  
+  drupal_add_library('system', 'drupal.ajax');
+  $link = ctools_modal_text_button('Clique para registrar um usuário','ajax_name_callback/nojs/', t('Clique para registrar um usuário'), 'ctools-modal-happy-modal-style');
+  $output = "<div id='myDiv'><div>$link</div></div>";
+  
+  return $output;
+
+}
+
+function ajax_name_menu() {
+
+  $items = array();
+	$items['ajax_name'] = array(
+		'title' => 'User AJAX register example',
+		'page callback' => 'ajax_name_render_link',
+		'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'main-menu',
+	);
+  $items['ajax_name_callback'] = array(
+		'title' => 'ajax_name_render_link',
+    'page callback' => 'ajax_name_response',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+	return $items;
+
+}
+
+function ajax_name_form($node, &$form_state) {
+
+	$form['nome'] = array(
+			'#type' => 'textfield',
+			'#title' => t('Nome'),
+			);
+
+	$form['sobrenome'] = array(
+			'#type' => 'textfield',
+			'#title' => t('Sobrenome'),
+			);
+
+  $form['submit'] = array(
+			'#type' => 'submit',
+      '#submit' => array('ajax_name_form_submit'),
+      '#ajax' => array(
+        'callback' => 'ajax_name_results',
+        'wrapper' => 'replace_textfield_div',
+      ),
+			'#value' => t('Send data')
+			);
+
+	return $form;
+
+}
+
+function ajax_name_form_submit($form, &$form_state) {
+
+  $ajax_name_id = db_insert('ajax_name')
+		->fields(array(
+					'nome' => $form_state['values']['nome'],
+					'sobrenome' => $form_state['values']['sobrenome'],
+			      )
+			)
+		->execute();
+
+	drupal_set_message(t('Os seus dados foram enviados com sucesso!'));
+
+}
+
+function ajax_name_submissions() {
+
+  $results = db_query("SELECT * FROM {ajax_name}");
+
+	$header = array(t('ID'), t('Nome'), t('Sobrenome'));
+	$rows = array();
+
+	foreach($results AS $result) {
+		$rows[] = array(
+				$result->ajax_name_id,
+				$result->nome,
+				$result->sobrenome,
+			       );
+	}
+
+	return theme('table',array('header' => $header, 'rows' => $rows));
+
+}
