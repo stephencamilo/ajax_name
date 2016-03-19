@@ -1,5 +1,6 @@
 <?php
 
+
 function ajax_name_response($type = 'ajax') {
 
   if ($type == 'ajax') {
